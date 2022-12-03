@@ -41,3 +41,16 @@ class SimpleSpellchecker:
 
             self.freqs1['*'] = 1
             self.freqs1['$'] = 1
+
+    def check(self, text: str) -> str:
+        print(f'{text = }')
+        tokens = tokenize(text)
+        tokens = ['*', '*'] + list(tokens) + ['$', '$']
+        print(f'{tokens = }')
+        for i in range(2, len(tokens) - 2):
+            token = tokens[i]
+            if token not in self.freqs1:
+                print(f'unknown {token = }')
+                # todo correct the token
+                pass
+        return text
