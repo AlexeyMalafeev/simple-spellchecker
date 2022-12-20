@@ -24,9 +24,9 @@ class SimpleSpellchecker:
     FILE_NAME_NGRAMS3: Final = '3grams-3.txt'
 
     def __init__(self, print_steps: bool = False):
-        self.freqs1: defaultdict[str, int] = defaultdict(int)
-        self.freqs2: defaultdict[Tuple[str, str], int] = defaultdict(int)
-        self.freqs3: defaultdict[Tuple[str, str, str], int] = defaultdict(int)
+        self.freqs1: dict[str, int] = {}
+        self.freqs2: dict[Tuple[str, str], int] = {}
+        self.freqs3: dict[Tuple[str, str, str], int] = {}
         self._print = print if print_steps else do_nothing
         self._load_data()
 
@@ -44,15 +44,15 @@ class SimpleSpellchecker:
 
     def _get_ngram_scores(self, tokens: List[str]) -> Tuple[str, int, int, int]:
         score3 = (
-            self.freqs3[(tokens[0], tokens[1], tokens[2])]
-            + self.freqs3[(tokens[1], tokens[2], tokens[3])]
-            + self.freqs3[(tokens[2], tokens[3], tokens[4])]
+            self.freqs3.get((tokens[0], tokens[1], tokens[2]), 0)
+            + self.freqs3.get((tokens[1], tokens[2], tokens[3]), 0)
+            + self.freqs3.get((tokens[2], tokens[3], tokens[4]), 0)
         )
         score2 = (
-            self.freqs2[(tokens[1], tokens[2])]
-            + self.freqs2[(tokens[2], tokens[3])]
+            self.freqs2.get((tokens[1], tokens[2]), 0)
+            + self.freqs2.get((tokens[2], tokens[3]), 0)
         )
-        score1 = self.freqs1[tokens[2]]
+        score1 = self.freqs1.get(tokens[2], 0)
         return (
             tokens[2],
             score3,
@@ -86,7 +86,7 @@ class SimpleSpellchecker:
                     ngram = tokenize(ngram)
                     if len(ngram) == 1:
                         ngram = ngram[0]  # tuple -> str for unigrams
-                    freqs[ngram] += freq
+                    freqs[ngram] = freqs.get(ngram, 0) + freq
 
             self.freqs1['*'] = 1
             self.freqs1['$'] = 1
