@@ -19,9 +19,9 @@ def tokenize(text: str) -> Tuple[str]:
 class SimpleSpellchecker:
     LETTERS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
     NGRAM_PATH: Final = Path('data')
-    FILE_NAME_NGRAMS1: Final = '1grams-3-top-200000.txt'
-    FILE_NAME_NGRAMS2: Final = '2grams-3-top-500000.txt'
-    FILE_NAME_NGRAMS3: Final = '3grams-3-top-700000.txt'
+    FILE_NAME_NGRAMS1: Final = '1grams-3.txt'
+    FILE_NAME_NGRAMS2: Final = '2grams-3.txt'
+    FILE_NAME_NGRAMS3: Final = '3grams-3.txt'
 
     def __init__(self, print_steps: bool = False):
         self.freqs1: defaultdict[str, int] = defaultdict(int)
