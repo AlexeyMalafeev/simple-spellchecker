@@ -6,6 +6,10 @@ from typing import Tuple, Final, Pattern, Dict, List, Set
 TOKENIZE_PTRN: Final[Pattern] = re.compile(r'[\w-]+')
 
 
+def do_nothing(*args, **kwargs) -> None:
+    pass
+
+
 def tokenize(text: str) -> Tuple[str]:
     tokens = re.findall(TOKENIZE_PTRN, text.lower())
     # noinspection PyTypeChecker
@@ -19,21 +23,23 @@ class SimpleSpellchecker:
     FILE_NAME_NGRAMS2: Final = '2grams-3-top-500000.txt'
     FILE_NAME_NGRAMS3: Final = '3grams-3-top-700000.txt'
 
-    def __init__(self):
+    def __init__(self, print_steps: bool = False):
         self.freqs1: defaultdict[str, int] = defaultdict(int)
         self.freqs2: defaultdict[Tuple[str, str], int] = defaultdict(int)
         self.freqs3: defaultdict[Tuple[str, str, str], int] = defaultdict(int)
+        self._print = print if print_steps else do_nothing
         self._load_data()
 
     def _correct_middle_token(self, tokens: List[str]) -> str:
         token = tokens[2]
         candidates = self._get_transforms(token)
-        print(f'{candidates = }')
-        ranking: List[Tuple[str, int, int, int]] = []
-        for candidate in candidates:
-            ranking.append(self._get_ngram_scores(tokens[0:2] + [candidate] + tokens[3:5]))
+        self._print(f'{candidates = }')
+        ranking: List[Tuple[str, int, int, int]] = [
+            self._get_ngram_scores(tokens[:2] + [candidate] + tokens[3:5])
+            for candidate in candidates
+        ]
         ranking.sort(key=lambda x: (x[1], x[2], x[3]), reverse=True)
-        print(f'{ranking = }')
+        self._print(f'{ranking = }')
         return ranking[0][0]
 
     def _get_ngram_scores(self, tokens: List[str]) -> Tuple[str, int, int, int]:
@@ -86,14 +92,14 @@ class SimpleSpellchecker:
             self.freqs1['$'] = 1
 
     def check(self, text: str) -> str:
-        print(f'{text = }')
+        self._print(f'{text = }')
         tokens = tokenize(text)
         tokens = ['*', '*'] + list(tokens) + ['$', '$']
-        print(f'{tokens = }')
+        self._print(f'{tokens = }')
         for i in range(2, len(tokens) - 2):
             token = tokens[i]
             if token not in self.freqs1:
-                print(f'unknown {token = }')
+                self._print(f'unknown {token = }')
                 corrected_token = self._correct_middle_token(tokens[i - 2: i + 3])
                 tokens[i] = corrected_token
         return ' '.join(tokens[2:-2])
