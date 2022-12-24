@@ -63,3 +63,4 @@ You can also run the `spell_demo.py` file.
 
 Note that the initialization of SimpleSpellchecker takes a few seconds (8 on my laptop). 
 After the initialization, however, the spellchecker can process thousands of sentences per second.
+To run tests, pytest is required (I used 7.2.0).  
