@@ -47,16 +47,27 @@ result = 'есть такая поговорка на ловца и зверь �
 
 ## Usage
 
-Make sure that you download the ngram files (1grams, 2grams and 3grams) from the above link, unzip and place them in the `data` folder. 
+### Preparation
+1. Make sure that you download the ngram files (1grams, 2grams and 3grams) from the above link. 
 Other than that, there are no dependencies. 
+2. Unzip the ngram files into the `data` folder. 
+3. Run `prepare_ngrams.py`. 
+It will convert the data format (a small optimization).
 
+All this is only done once.
+After successfully performing the preparation steps, you can use the spellchecker as shown below.
+
+### Spellchecking
 You can simply do the following:
 
 ```python
 from src.spellchecker import SimpleSpellchecker
 
-speller = SimpleSpellchecker()
-speller.check("Это каждый челвек должен знать!")
+speller = SimpleSpellchecker()  # print_steps=True for verbose output
+
+incorrect_sentence = "Это каждый челвек должен знать!"
+corrected_sentence = speller.check(incorrect_sentence)
+# -> "это каждый человек должен знать"
 ```
 
 You can also run the `spell_demo.py` file.
