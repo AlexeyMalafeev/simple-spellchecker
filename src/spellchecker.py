@@ -39,6 +39,8 @@ class SimpleSpellchecker:
             self._get_ngram_scores(tokens[:2] + [candidate] + tokens[3:5])
             for candidate in candidates
         ]
+        if not ranking:
+            return tokens[2]
         ranking.sort(key=lambda x: (x[1], x[2], x[3]), reverse=True)
         self._print(f'{ranking = }')
         return ranking[0][0]
