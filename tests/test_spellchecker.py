@@ -1,6 +1,25 @@
 import pytest
 
-from conftest import spellchecker
+
+@pytest.mark.parametrize(
+    'orig_sent, corr_sent',
+    (
+        (
+            '',
+            '',
+        ),
+        (
+            'ЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖЖ ЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗЗ ББББББББББББББББ',
+            'жжжжжжжжжжжжжжжжжжжжжжжжжжжжжжжжжжжжж зззззззззззззззззззззззззз бббббббббббббббб',
+        ),
+        (
+            'Hello my name is Peter.',
+            'hello my name is peter',
+        ),
+    )
+)
+def test_edge(spellchecker, orig_sent, corr_sent):
+    assert spellchecker.check(orig_sent) == corr_sent
 
 
 @pytest.mark.parametrize(
