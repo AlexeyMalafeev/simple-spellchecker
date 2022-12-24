@@ -1,5 +1,7 @@
-from src.ngram_process import NgramProcessor
+# from src.ngram_process import NgramCutter
+from src.ngram_process import ngrams_to_json
 
 
-processor = NgramProcessor()
-processor.process()
+# processor = NgramCutter()
+# processor.process()
+ngrams_to_json()

@@ -1,13 +1,13 @@
 # simple-spellchecker
 
-Fast spelling error correction in Russian using some context information (bigrams and trigrams).
+Fast spelling error correction in Russian using context information (bigrams and trigrams).
 
 ## Introduction
 
 This is a small educational project I created for my students to demonstrate a simple solution to a real Natural Language Processing problem: 
 spellchecking in Russian. 
 Note that it is NOT a production-ready spellchecking system with state-of-the-art accuracy. 
-It can correct some spelling errors and it works pretty fast, but it is not nearly as accurate as commercial systems like JamSpell Pro.
+While it can correct some spelling errors and works pretty fast, it is not nearly as accurate as commercial systems like JamSpell Pro.
 
 ## Method
 
@@ -47,18 +47,31 @@ result = 'есть такая поговорка на ловца и зверь �
 
 ## Usage
 
-Make sure that you download the ngram files (1grams, 2grams and 3grams) from the above link, unzip and place them in the `data` folder. Other than that, there are no dependencies. 
+### Preparation
+1. Make sure that you download the ngram files (1grams, 2grams and 3grams) from the above link. 
+Other than that, there are no dependencies. 
+2. Unzip the ngram files into the `data` folder. 
+3. Run `prepare_ngrams.py`. 
+It will convert the data format (a small optimization).
 
+All this is only done once.
+After successfully performing the preparation steps, you can use the spellchecker as shown below.
+
+### Spellchecking
 You can simply do the following:
 
 ```python
 from src.spellchecker import SimpleSpellchecker
 
-speller = SimpleSpellchecker()
-speller.check(<your_sentence_in_Russian>)
+speller = SimpleSpellchecker()  # print_steps=True for verbose output
+
+incorrect_sentence = "Это каждый челвек должен знать!"
+corrected_sentence = speller.check(incorrect_sentence)
+# -> "это каждый человек должен знать"
 ```
 
 You can also run the `spell_demo.py` file.
 
-Note that the initialization of SimpleSpellchecker is expensive and not optimized. 
+Note that the initialization of SimpleSpellchecker takes a few seconds (8 on my laptop). 
 After the initialization, however, the spellchecker can process thousands of sentences per second.
+To run tests, pytest is required (I used 7.2.0).  
