@@ -1,3 +1,4 @@
+import json
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -19,14 +20,14 @@ def tokenize(text: str) -> Tuple[str]:
 class SimpleSpellchecker:
     LETTERS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
     NGRAM_PATH: Final = Path('data')
-    FILE_NAME_NGRAMS1: Final = '1grams-3.txt'
-    FILE_NAME_NGRAMS2: Final = '2grams-3.txt'
-    FILE_NAME_NGRAMS3: Final = '3grams-3.txt'
+    FILE_NAME_NGRAMS1: Final = '1grams-3.json'
+    FILE_NAME_NGRAMS2: Final = '2grams-3.json'
+    FILE_NAME_NGRAMS3: Final = '3grams-3.json'
 
     def __init__(self, print_steps: bool = False):
         self.freqs1: dict[str, int] = {}
-        self.freqs2: dict[Tuple[str, str], int] = {}
-        self.freqs3: dict[Tuple[str, str, str], int] = {}
+        self.freqs2: dict[str, int] = {}
+        self.freqs3: dict[str, int] = {}
         self._print = print if print_steps else do_nothing
         self._load_data()
 
@@ -44,13 +45,13 @@ class SimpleSpellchecker:
 
     def _get_ngram_scores(self, tokens: List[str]) -> Tuple[str, int, int, int]:
         score3 = (
-            self.freqs3.get((tokens[0], tokens[1], tokens[2]), 0)
-            + self.freqs3.get((tokens[1], tokens[2], tokens[3]), 0)
-            + self.freqs3.get((tokens[2], tokens[3], tokens[4]), 0)
+            self.freqs3.get(' '.join(tokens[:3]), 0)
+            + self.freqs3.get(' '.join(tokens[1:4]), 0)
+            + self.freqs3.get(' '.join(tokens[2:5]), 0)
         )
         score2 = (
-            self.freqs2.get((tokens[1], tokens[2]), 0)
-            + self.freqs2.get((tokens[2], tokens[3]), 0)
+            self.freqs2.get(' '.join(tokens[1:3]), 0)
+            + self.freqs2.get(' '.join(tokens[2:4]), 0)
         )
         score1 = self.freqs1.get(tokens[2], 0)
         return (
@@ -79,17 +80,10 @@ class SimpleSpellchecker:
             (self.FILE_NAME_NGRAMS2, self.freqs2),
             (self.FILE_NAME_NGRAMS3, self.freqs3),
         ):
-            with open(Path(self.NGRAM_PATH, file_name), 'r', encoding='utf-8') as ngrams_file:
-                for line in ngrams_file:
-                    freq, ngram = line.split(maxsplit=1)
-                    freq = int(freq)
-                    ngram = tokenize(ngram)
-                    if len(ngram) == 1:
-                        ngram = ngram[0]  # tuple -> str for unigrams
-                    freqs[ngram] = freqs.get(ngram, 0) + freq
+            freqs.update(json.load(open(Path(self.NGRAM_PATH, file_name), 'r', encoding='utf-8')))
 
-            self.freqs1['*'] = 1
-            self.freqs1['$'] = 1
+        self.freqs1['*'] = 1
+        self.freqs1['$'] = 1
 
     def check(self, text: str) -> str:
         self._print(f'{text = }')
