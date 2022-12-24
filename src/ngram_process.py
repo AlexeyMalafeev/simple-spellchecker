@@ -1,7 +1,29 @@
+import json
 from pathlib import Path
 
 
-class NgramProcessor:
+def ngrams_to_json(data_path: Path = Path(r'data')):
+    from src.spellchecker import tokenize
+
+    for file_name in (
+            '1grams-3.txt',
+            '2grams-3.txt',
+            '3grams-3.txt',
+    ):
+        freqs = {}
+        file_path = data_path / file_name
+        with open(file_path, 'r', encoding='utf-8') as ngrams_file:
+            for line in ngrams_file:
+                freq, ngram = line.split(maxsplit=1)
+                freq = int(freq)
+                ngram = ' '.join(tokenize(ngram))
+                freqs[ngram] = freqs.get(ngram, 0) + freq
+
+        target_path = data_path / file_name.replace('.txt', '.json')
+        json.dump(freqs, open(target_path, 'w', encoding='utf-8'), ensure_ascii=False, indent=4)
+
+
+class NgramCutter:
     data_path = Path(r'data')
     n_unigrams = 200_000
     n_bigrams = 500_000
