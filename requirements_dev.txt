@@ -1,1 +1,2 @@
-tqdm
+loguru~=0.6.0
+tqdm~=4.64.1

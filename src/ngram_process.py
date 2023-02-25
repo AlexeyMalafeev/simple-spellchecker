@@ -12,6 +12,7 @@ def ngrams_to_json(data_path: Path = Path(r'data')):
     ):
         freqs = {}
         file_path = data_path / file_name
+        print(f'processing {file_path}')
         with open(file_path, 'r', encoding='utf-8') as ngrams_file:
             for line in ngrams_file:
                 freq, ngram = line.split(maxsplit=1)
