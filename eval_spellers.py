@@ -2,9 +2,9 @@ from src.evaluation import evaluate
 from src.spellchecker import (
     # SimpleSpellchecker,
     # SimpleSpellcheckerSkipShort,
-    # SimpleSpellcheckerV2,
-    SimpleSpellcheckerV2SkipShort,
+    SimpleSpellcheckerV2,
+    # SimpleSpellcheckerV2SkipShort,
 )
 
-res = evaluate(SimpleSpellcheckerV2SkipShort())
+res = evaluate(SimpleSpellcheckerV2())
 print(res)

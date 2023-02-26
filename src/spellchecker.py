@@ -60,6 +60,8 @@ class SimpleSpellchecker(BaseSpellchecker):
             return tokens[2]
         ranking.sort(key=lambda x: (x[1], x[2], x[3]), reverse=True)
         self._print(f'{ranking = }')
+        if ranking[0][1] == 0 and ranking[0][2] == 0:
+            return token
         return ranking[0][0]
 
     def _get_ngram_scores(self, tokens: List[str]) -> Tuple[str, int, int, int]:

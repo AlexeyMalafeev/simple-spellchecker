@@ -19,6 +19,7 @@ corr_sample = open(
 
 
 def evaluate(speller: SimpleSpellchecker) -> float:
+    print(f'evaluating {speller.__class__.__name__}')
     logger.info(f'***Starting to evaluate {speller.__class__.__name__}***')
 
     correct = 0

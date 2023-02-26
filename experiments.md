@@ -1,18 +1,31 @@
 # Experiments
 
 ## Ideas
-- [ ] attempt to correct trigrams not in self.freqs3
+- [x] attempt to correct bigrams not in self.freqs2 (bad)
+- [x] no replacement based only on unigram frequency (good)
+- [ ] don't check non-cyrillic words
+- [ ] add hyphen to supported transformations
+- [ ] add vowel collapsing to transformations
+- [ ] add support for splitting words? (transformations)
 - [ ] heuristics to ignore names?
 - [ ] prior probability of an unknown word that is not a typo
 - [ ] error analysis
 - [ ] edit distance 2?
-- [ ] add vowel collapsing to transformations
 - [ ] other typical errors to transformations? ца -> тся etc.
-- [ ] add support for splitting words? (transformations)
-- [ ] don't check non-cyrillic words
-- [ ] don't replace unknown words for unigrams if bigrams/trigrams don't support the replacement
-- [ ] add hyphen to supported transformations
-- [ ] frequency cut off? there are typos in ngrams (видется)
+- [ ] ngram frequency cut off? there are typos in ngrams (видется)
+
+## 9
+SimpleSpellcheckerV2, but don't rely on unigrams only when replacing  
+0.4097 (+0.2121 over regular SimpleSpellcheckerV2!)
+
+## 8
+SimpleSpellcheckerSkipShort, but don't rely on unigrams only when replacing  
+ACC 0.4569 (same as without skipping short)
+
+## 7
+
+SimpleSpellchecker, but don't rely on unigrams only when replacing  
+ACC 0.4569 (+0.0159)
 
 ## 6
 eb7f9f0ce6216a2839bbe53a97958b07af24ba98
