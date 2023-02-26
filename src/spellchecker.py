@@ -110,6 +110,12 @@ class SimpleSpellchecker:
         return tokens[i] not in self.freqs1
 
 
+class SimpleSpellcheckerSkipShort(SimpleSpellchecker):
+    skippable_word_length = 4
+
+    def _should_correct(self, i: int, tokens: Sequence[str]) -> bool:
+        return len(tokens[i]) > self.skippable_word_length and tokens[i] not in self.freqs1
+
 class SimpleSpellcheckerV2(SimpleSpellchecker):
     """Attempts to correct a word if there are no known bigrams with it"""
     def _should_correct(self, i: int, tokens: Sequence[str]) -> bool:
