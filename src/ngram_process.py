@@ -1,16 +1,18 @@
 import json
 from pathlib import Path
 
+from tqdm.auto import tqdm
 
-def ngrams_to_json(data_path: Path = Path(r'data')):
-    from src.spellchecker import tokenize
+from src.spellchecker import tokenize
 
+
+def ngrams_to_json(data_path: Path = Path('data')):
     for file_name in (
             '1grams-3.txt',
             '2grams-3.txt',
             '3grams-3.txt',
     ):
-        freqs = {}
+        freqs: dict[str, int] = {}
         file_path = data_path / file_name
         print(f'processing {file_path}')
         with open(file_path, 'r', encoding='utf-8') as ngrams_file:
@@ -22,6 +24,33 @@ def ngrams_to_json(data_path: Path = Path(r'data')):
 
         target_path = data_path / file_name.replace('.txt', '.json')
         json.dump(freqs, open(target_path, 'w', encoding='utf-8'), ensure_ascii=False, indent=4)
+
+
+def ngrams_to_skip_grams(data_path: Path = Path('data')):
+    freqs: dict[str, int] = {}  # {'word1 word2': freq1, ...} 'w1 w2' sorted alphabetically!
+    for file_name in (
+        '2grams-3.txt',
+        '3grams-3.txt',
+        # 'toy2.txt',
+        # 'toy3.txt',
+    ):
+        file_path = data_path / file_name
+        print(f'processing {file_path}')
+        with open(file_path, 'r', encoding='utf-8') as ngrams_file:
+            lines = ngrams_file.read().split('\n')
+            for line in tqdm(lines):
+                if not line.strip():
+                    continue
+                freq, ngram = line.split(maxsplit=1)
+                freq = int(freq)
+                tokens = sorted(tokenize(ngram))
+                for i, token in enumerate(tokens):
+                    for token2 in tokens[i + 1:]:
+                        freqs[f'{token} {token2}'] = freqs.get(f'{token} {token2}', 0) + freq
+
+    print(f'collected {len(freqs)} skip-grams')
+    target_path = data_path / 'skip-grams.json'
+    json.dump(freqs, open(target_path, 'w', encoding='utf-8'), ensure_ascii=False, indent=4)
 
 
 class NgramCutter:

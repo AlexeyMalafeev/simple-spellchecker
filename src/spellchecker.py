@@ -26,7 +26,7 @@ def tokenize(text: str) -> Tuple[str]:
 
 class BaseSpellchecker(ABC):
     @abstractmethod
-    def __init__(self):
+    def __init__(self, print_steps: bool = False):
         pass
 
     @abstractmethod
@@ -147,3 +147,7 @@ class SimpleSpellcheckerV2SkipShort(SimpleSpellchecker):
             ' '.join(tokens[i-1: i+1]) not in self.freqs2 and
             ' '.join(tokens[i: i+2]) not in self.freqs2
         )
+
+
+class SkipGrammer(BaseSpellchecker):
+    pass
