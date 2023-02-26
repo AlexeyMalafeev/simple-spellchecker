@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import json
 import re
 from pathlib import Path
@@ -13,7 +14,7 @@ from typing import (
 TOKENIZE_PTRN: Final[Pattern] = re.compile(r'[\w-]+')
 
 
-def do_nothing(*args, **kwargs) -> None:
+def do_nothing(*args, **kwargs) -> None:  # noqa
     pass
 
 
@@ -23,7 +24,17 @@ def tokenize(text: str) -> Tuple[str]:
     return tuple(tokens)
 
 
-class SimpleSpellchecker:
+class BaseSpellchecker(ABC):
+    @abstractmethod
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def check(self, text: str) -> str:
+        pass
+
+
+class SimpleSpellchecker(BaseSpellchecker):
     LETTERS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
     NGRAM_PATH: Final = Path('data')
     FILE_NAME_NGRAMS1: Final = '1grams-3.json'
@@ -116,6 +127,7 @@ class SimpleSpellcheckerSkipShort(SimpleSpellchecker):
     def _should_correct(self, i: int, tokens: Sequence[str]) -> bool:
         return len(tokens[i]) > self.skippable_word_length and tokens[i] not in self.freqs1
 
+
 class SimpleSpellcheckerV2(SimpleSpellchecker):
     """Attempts to correct a word if there are no known bigrams with it"""
     def _should_correct(self, i: int, tokens: Sequence[str]) -> bool:
@@ -123,6 +135,7 @@ class SimpleSpellcheckerV2(SimpleSpellchecker):
             ' '.join(tokens[i-1: i+1]) not in self.freqs2 and
             ' '.join(tokens[i: i+2]) not in self.freqs2
         )
+
 
 class SimpleSpellcheckerV2SkipShort(SimpleSpellchecker):
     """Attempts to correct a word if there are no known bigrams with it"""
