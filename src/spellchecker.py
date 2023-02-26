@@ -1,8 +1,14 @@
 import json
 import re
-from collections import defaultdict
 from pathlib import Path
-from typing import Tuple, Final, Pattern, Dict, List, Set
+from typing import (
+    Final,
+    List,
+    Pattern,
+    Set,
+    Sequence,
+    Tuple,
+)
 
 TOKENIZE_PTRN: Final[Pattern] = re.compile(r'[\w-]+')
 
@@ -94,8 +100,20 @@ class SimpleSpellchecker:
         self._print(f'{tokens = }')
         for i in range(2, len(tokens) - 2):
             token = tokens[i]
-            if token not in self.freqs1:
+            if self._should_correct(i, tokens):
                 self._print(f'unknown {token = }')
                 corrected_token = self._correct_middle_token(tokens[i - 2: i + 3])
                 tokens[i] = corrected_token
         return ' '.join(tokens[2:-2])
+
+    def _should_correct(self, i: int, tokens: Sequence[str]) -> bool:
+        return tokens[i] not in self.freqs1
+
+
+class SimpleSpellcheckerV2(SimpleSpellchecker):
+    """Attempts to correct a word if there are no known bigrams with it"""
+    def _should_correct(self, i: int, tokens: Sequence[str]) -> bool:
+        return (
+            ' '.join(tokens[i-1: i+1]) not in self.freqs2 and
+            ' '.join(tokens[i: i+2]) not in self.freqs2
+        )

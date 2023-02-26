@@ -1,6 +1,6 @@
 from src.evaluation import evaluate
-from src.spellchecker import SimpleSpellchecker
+from src.spellchecker import SimpleSpellcheckerV2
 
 
-res = evaluate(SimpleSpellchecker())
+res = evaluate(SimpleSpellcheckerV2())
 print(res)
