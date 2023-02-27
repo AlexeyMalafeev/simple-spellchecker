@@ -1,7 +1,7 @@
-from src.spellchecker import SimpleSpellcheckerV2
+from src.spellchecker import SkipGrammer
 
 
-chkr = SimpleSpellcheckerV2(print_steps=True)
+chkr = SkipGrammer(print_steps=True)
 
 print(chkr.check('Ну что ты это каждый челвек должен знать!'), '\n')
 print(chkr.check('Мы шли по подъезду и стучались в каждую жверь, ожидая, что нам откроют.'), '\n')

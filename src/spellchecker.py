@@ -4,11 +4,13 @@ import re
 from pathlib import Path
 from typing import (
     Final,
+    Iterable,
     List,
     Pattern,
     Set,
     Sequence,
     Tuple,
+    Union,
 )
 
 TOKENIZE_PTRN: Final[Pattern] = re.compile(r'[\w-]+')
@@ -18,10 +20,24 @@ def do_nothing(*args, **kwargs) -> None:  # noqa
     pass
 
 
-def tokenize(text: str) -> Tuple[str]:
+def get_transforms1(token: str, letters: str, possible_words: Union[set, dict]):
+    splits = [(token[:i], token[i:]) for i in range(len(token) + 1)]
+    deletes = [left + right[1:] for left, right in splits if right]
+    transposes = [
+        left + right[1] + right[0] + right[2:] for left, right in splits if len(right) > 1
+    ]
+    replaces = [left + c + right[1:] for left, right in splits if right for c in letters]
+    inserts = [left + c + right for left, right in splits for c in letters]
+    candidates = [
+        cand for cand in deletes + transposes + replaces + inserts if cand in possible_words
+    ]
+    return set(candidates)
+
+
+def tokenize(text: str) -> list[str]:
     tokens = re.findall(TOKENIZE_PTRN, text.lower())
     # noinspection PyTypeChecker
-    return tuple(tokens)
+    return tokens
 
 
 class BaseSpellchecker(ABC):
@@ -83,17 +99,7 @@ class SimpleSpellchecker(BaseSpellchecker):
         )
 
     def _get_transforms(self, token: str) -> Set[str]:
-        splits = [(token[:i], token[i:]) for i in range(len(token) + 1)]
-        deletes = [left + right[1:] for left, right in splits if right]
-        transposes = [
-            left + right[1] + right[0] + right[2:] for left, right in splits if len(right) > 1
-        ]
-        replaces = [left + c + right[1:] for left, right in splits if right for c in self.LETTERS]
-        inserts = [left + c + right for left, right in splits for c in self.LETTERS]
-        candidates = [
-            cand for cand in deletes + transposes + replaces + inserts if cand in self.freqs1
-        ]
-        return set(candidates)
+        return get_transforms1(token, self.LETTERS, self.freqs1)
 
     def _load_data(self) -> None:
         for file_name, freqs in (
@@ -109,7 +115,7 @@ class SimpleSpellchecker(BaseSpellchecker):
     def check(self, text: str) -> str:
         self._print(f'{text = }')
         tokens = tokenize(text)
-        tokens = ['*', '*'] + list(tokens) + ['$', '$']
+        tokens = ['*', '*'] + tokens + ['$', '$']
         self._print(f'{tokens = }')
         for i in range(2, len(tokens) - 2):
             token = tokens[i]
@@ -152,4 +158,69 @@ class SimpleSpellcheckerV2SkipShort(SimpleSpellchecker):
 
 
 class SkipGrammer(BaseSpellchecker):
-    pass
+    LETTERS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
+    DATA_PATH: Final = Path('data')
+    SKIP_GRAM_FILE_NAME = 'skip-grams.json'
+    UNIGRAM_FILE_NAME = '1grams-3.json'
+
+    def __init__(self, print_steps: bool = False):
+        self.skipgrams: dict[str, int] = {}
+        self.known_words: set[str] = set()
+        self._print = print if print_steps else do_nothing
+        self._load_data()
+
+    def check(self, text: str) -> str:
+        self._print(f'{text = }')
+        tokens = tokenize(text)
+        self._print(f'{tokens = }')
+        for i, token in enumerate(tokens):
+            if self._should_correct(i, tokens):
+                self._print(f'unknown {token = }')
+                corrected_token = self._correct_token(i, tokens)
+                tokens[i] = corrected_token
+        return ' '.join(tokens)
+
+    def _correct_token(self, i: int, tokens: list[str]) -> str:
+        token = tokens[i]
+        candidates = self._get_transforms(token)
+        self._print(f'{candidates = }')
+        context = tokens[:i] + tokens[i + 1:]
+        ranking: list[tuple[str, int]] = [
+            self._get_skipgram_score(candidate, context)
+            for candidate in candidates
+        ]
+        if not ranking:
+            return token
+        ranking.sort(key=lambda x: x[1], reverse=True)
+        self._print(f'{ranking = }')
+        # if _should_not_replace():
+        #     return token
+        return ranking[0][0]
+
+    def _get_skipgram_score(
+        self,
+        candidate,
+        context_tokens: Iterable[str]
+    ) -> Tuple[str, int]:
+        score = 0
+        for token in context_tokens:
+            skipgram = ' '.join(sorted((candidate, token)))
+            score += self.skipgrams.get(skipgram, 0)
+        return candidate, score
+
+    def _get_transforms(self, token: str) -> set[str]:
+        return get_transforms1(token, self.LETTERS, self.known_words)
+
+    def _load_data(self) -> None:
+        self.skipgrams = json.load(
+            open(Path(self.DATA_PATH, self.SKIP_GRAM_FILE_NAME), 'r', encoding='utf-8')
+        )
+        unigrams = json.load(
+            open(Path(self.DATA_PATH, self.UNIGRAM_FILE_NAME), 'r', encoding='utf-8')
+        )
+        self.known_words = set(unigrams)
+
+    def _should_correct(self, i: int, tokens: Sequence[str]) -> bool:
+        return tokens[i] not in self.known_words
+
+

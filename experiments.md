@@ -3,6 +3,7 @@
 ## Ideas
 - [x] attempt to correct bigrams not in self.freqs2 (bad)
 - [x] no replacement based only on unigram frequency (good)
+- [ ] try skip-grams
 - [ ] don't check non-cyrillic words
 - [ ] add hyphen to supported transformations
 - [ ] add vowel collapsing to transformations
@@ -14,9 +15,13 @@
 - [ ] other typical errors to transformations? ца -> тся etc.
 - [ ] ngram frequency cut off? there are typos in ngrams (видется)
 
+## Current Best
+ACC 0.4569
+
 ## 9
+590c262c5fc90d998a843046e67d273c598f57fe
 SimpleSpellcheckerV2, but don't rely on unigrams only when replacing  
-0.4097 (+0.2121 over regular SimpleSpellcheckerV2!)
+ACC 0.4097 (+0.2121 over regular SimpleSpellcheckerV2!)
 
 ## 8
 SimpleSpellcheckerSkipShort, but don't rely on unigrams only when replacing  
@@ -25,7 +30,7 @@ ACC 0.4569 (same as without skipping short)
 ## 7
 
 SimpleSpellchecker, but don't rely on unigrams only when replacing  
-ACC 0.4569 (+0.0159)
+ACC 0.4569 (+0.0159, new current best)
 
 ## 6
 eb7f9f0ce6216a2839bbe53a97958b07af24ba98
